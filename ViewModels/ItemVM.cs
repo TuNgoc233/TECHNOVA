@@ -8,5 +8,7 @@
         public double price { get; set; }
         public string categoryName { get; set; }    
         public string unitDecription { get; set; }
+        public string alias { get; set; }
+
     }
 }

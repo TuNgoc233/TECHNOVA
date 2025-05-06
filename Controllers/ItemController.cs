@@ -39,6 +39,7 @@ namespace TECHNOVA.Controllers
                     image = p.Image ?? "",
                     unitDecription = p.UnitDescription,
                     categoryName = p.Category.CategoryName,
+                    alias = p.Alias
                 })
                 .ToList();
 

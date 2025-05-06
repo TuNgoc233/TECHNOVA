@@ -1,0 +1,35 @@
+﻿@model IEnumerable<TECHNOVA.ViewModels.SupplierVM>
+
+<ul id="supplierList">
+    @foreach (var supplier in Model)
+    {
+        <li>
+            <a href="#">@supplier.SupplierName</a>
+            <span>(@supplier.ProductCount)</span>
+        </li>
+    }
+</ul>
+
+@if (Model.Count() > 5)
+{
+    <button id="showMoreBtn">More</button>
+}
+
+<!-- Danh sách các nhà cung cấp còn lại -->
+<ul id="allSuppliers" style="display:none;">
+    @foreach (var supplier in Model)
+    {
+        <li>
+            <a href="#">@supplier.SupplierName</a>
+            <span>(@supplier.ProductCount)</span>
+        </li>
+    }
+</ul>
+
+<script>
+    document.getElementById('showMoreBtn').addEventListener('click', function () {
+        document.getElementById('allSuppliers').style.display = 'block';
+        this.style.display = 'none'; // Ẩn nút "More"
+    });
+</script>
+
