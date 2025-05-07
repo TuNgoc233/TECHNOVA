@@ -20,9 +20,9 @@
                         <img src="@item.image" alt="@item.productName">
                     </a>
                     <div class="product-action">
-                        <a href="#"><i class="fa fa-cart-plus"></i></a>
+                        <a asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@item.productID"><i class="fa fa-cart-plus"></i></a>
                         <a href="#"><i class="fa fa-heart"></i></a>
-                        <a href="#"><i class="fa fa-search"></i></a>
+                        <a asp-action="Detail" asp-controller="Item" asp-route-id="@item.productID"><i class="fa fa-search"></i></a>
                     </div>
                 </div>
                 <div class="product-price mt-auto">
