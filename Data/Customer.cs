@@ -11,9 +11,9 @@ public partial class Customer
 
     public string FullName { get; set; } = null!;
 
-    public bool Gender { get; set; }
+    public bool? Gender { get; set; }
 
-    public DateTime BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
     public string? Address { get; set; }
 

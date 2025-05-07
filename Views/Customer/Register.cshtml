@@ -1,0 +1,66 @@
+﻿@model TECHNOVA.ViewModels.RegisterVM
+@{
+    ViewData["Title"] = "Register";
+    //Layout = "_LayoutCustomer";
+}
+
+<!-- Breadcrumb Start -->
+<div class="breadcrumb-wrap">
+    <div class="container-fluid">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a href="#">Home</a></li>
+            <li class="breadcrumb-item"><a href="#">Products</a></li>
+            <li class="breadcrumb-item active">Register</li>
+        </ul>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+
+<!-- Login Start -->
+<!-- Login Start -->
+<div class="text-center">
+    <h1 class="mb-4">Register Membership</h1>
+</div>
+<form asp-action="Register" enctype="multipart/form-data">
+					<div asp-validation-summary="All" class="text-danger mb-3"></div>
+<div class="col-lg-6 mx-auto">
+    <!-- căn giữa form -->
+    <div class="register-form">
+        <div class="row">
+            <div class="col-md-6">
+                <label asp-for="@Model.customerID" class="form-label my-3"></label><sup>*</sup>
+                <input asp-for="@Model.customerID" class="form-control" placeholder="Username">
+                <span asp-validation-for="@Model.customerID" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.fullName" class="form-label my-3"></label><sup>*</sup>
+                <input asp-for="@Model.fullName" class="form-control" placeholder="Fullname">
+                <span asp-validation-for="@Model.fullName" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.Email" class="form-label my-3"></label><sup>*</sup>
+                <input asp-for="@Model.Email" class="form-control" placeholder="E-mail">
+                <span asp-validation-for="@Model.Email" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.phone" class="form-label my-3"></label><sup>*</sup>
+                    <input asp-for="@Model.phone" class="form-control" placeholder="Mobile No">
+                    <span asp-validation-for="@Model.phone" class="text-danger"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="@Model.password" class="form-label my-3"></label><sup>*</sup>
+                <input asp-for="@Model.password" class="form-control" placeholder="Password">
+                <span asp-validation-for="@Model.password" class="text-danger"></span>
+            </div>
+                <div class="col-md-6">
+                    <label asp-for="ConfirmPassword" class="form-label my-3">Retype Password</label><sup>*</sup>
+                    <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm Password" type="password" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+            <div class="col-md-12 d-flex justify-content-center mt-3">
+                <button type="submit" class="btn btn-primary px-4">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
