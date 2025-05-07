@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Authentication.Google;
 
 
 namespace TECHNOVA.Controllers
@@ -126,6 +127,118 @@ namespace TECHNOVA.Controllers
             }
             return View();
         }
+        public IActionResult LoginGoogle(string returnUrl = "/")
+        {
+            var redirectUrl = Url.Action("GoogleResponse", "Customer", new { returnUrl });
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        public async Task<IActionResult> GoogleResponse(string returnUrl = "/")
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return RedirectToAction("Login");
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+
+            // Kiểm tra hoặc tạo user
+            var user = db.Customers.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+            {
+                user = new Customer
+                {
+                    CustomerId = Guid.NewGuid().ToString().Substring(0, 8),
+                    Email = email,
+                    FullName = name,
+                    IsActive = true,
+                    Role = 0
+                };
+                try
+                {
+                    db.Customers.Add(user);
+                    await db.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    // Ghi log hoặc hiển thị lỗi
+                    Console.WriteLine(ex.Message);
+                    return Content("Lỗi khi lưu người dùng: " + ex.Message);
+                }
+            }
+
+            // Tạo claims đăng nhập
+            var userClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.FullName),
+        new Claim(MySetting.CLAIM_CUSTOMERID, user.CustomerId),
+        new Claim(ClaimTypes.Role, "Customer")
+    };
+
+            var identity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(principal);
+
+            return Redirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "/");
+        }
+
+        public IActionResult LoginFacebook(string returnUrl = "/")
+        {
+            var redirectUrl = Url.Action("FacebookResponse", "Customer", new { returnUrl });
+            var properties = new AuthenticationProperties { RedirectUri = redirectUrl };
+            return Challenge(properties, "Facebook");
+        }
+
+        public async Task<IActionResult> FacebookResponse(string returnUrl = "/")
+        {
+            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+                return RedirectToAction("Login");
+
+            var claims = result.Principal.Identities.FirstOrDefault()?.Claims;
+            var facebookId = claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var name = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            var email = claims?.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            if (facebookId == null)
+                return RedirectToAction("Login");
+
+            // Tìm theo FacebookID chứ không dùng email nữa
+            var user = db.Customers.FirstOrDefault(u => u.FacebookId == facebookId);
+
+            if (user == null)
+            {
+                user = new Customer
+                {
+                    CustomerId = Guid.NewGuid().ToString("N").Substring(0, 8),
+                    FullName = name,
+                    Email = email,              // nếu có thì lưu, không bắt buộc
+                    FacebookId = facebookId,    // thêm cột này trong bảng Customer
+                    IsActive = true,
+                    Role = 0
+                };
+                db.Customers.Add(user);
+                await db.SaveChangesAsync();
+            }
+
+            var userClaims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, user.FullName),
+        new Claim(MySetting.CLAIM_CUSTOMERID, user.CustomerId),
+        new Claim(ClaimTypes.Role, "Customer")
+    };
+
+            var identity = new ClaimsIdentity(userClaims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
+            await HttpContext.SignInAsync(principal);
+
+            return Redirect(Url.IsLocalUrl(returnUrl) ? returnUrl : "/");
+        }
+
+
         #endregion
 
         [Authorize]

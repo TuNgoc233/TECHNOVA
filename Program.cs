@@ -13,6 +13,16 @@ builder.Services.AddDbContext<TechnovaContext>(options => {
 	options.UseSqlServer(builder.Configuration.GetConnectionString("TECHNOVA"));
 });
 
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+}
+);
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 builder.Services.AddAuthentication(options =>
@@ -26,8 +36,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddGoogle(options =>
 {
-    options.ClientId = "111734754077-8oosafre7tcnc0t0c0o6jdg01deo4fh6.apps.googleusercontent.com";
-    options.ClientSecret = "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";
+    options.ClientId = "111734754077-lirrvkb5j79fpqs7vs543q1tt5m7lq7m.apps.googleusercontent.com";
+    options.ClientSecret = "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";
 })
 .AddFacebook(options =>
 {
@@ -48,6 +58,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

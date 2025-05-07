@@ -19,7 +19,7 @@ public partial class Customer
 
     public string? Phone { get; set; }
 
-    public string Email { get; set; } = null!;
+    public string? Email { get; set; }
 
     public string? Image { get; set; }
 
@@ -28,6 +28,8 @@ public partial class Customer
     public int Role { get; set; }
 
     public string? RandomKey { get; set; }
+
+    public string? FacebookId { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
