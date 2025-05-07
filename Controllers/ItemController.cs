@@ -15,15 +15,21 @@ namespace TECHNOVA.Controllers
             db = context;
         }
 
-        public IActionResult Index(int? category, int page = 1)
+        public IActionResult Index(int? categoryId, int page = 1)
         {
             int pageSize = 9;
 
-            var query = db.Products.AsQueryable();
+            var query = db.Products.AsNoTracking().AsQueryable();
 
-            if (category.HasValue)
+            if (categoryId.HasValue)
             {
-                query = query.Where(p => p.CategoryId == category.Value);
+                // Kiểm tra danh mục có tồn tại
+                if (!db.Categories.Any(c => c.CategoryId == categoryId.Value))
+                {
+                    TempData["Message"] = "Danh mục không hợp lệ.";
+                    return RedirectToAction("Index");
+                }
+                query = query.Where(p => p.CategoryId == categoryId.Value);
             }
 
             int totalItems = query.Count();
@@ -38,23 +44,34 @@ namespace TECHNOVA.Controllers
                     productName = p.ProductName,
                     price = p.UnitPrice ?? 0,
                     image = p.Image ?? "",
-                    unitDecription = p.UnitDescription,
+                    //unitDescription = p.UnitDescription, // Sửa lỗi chính tả
                     categoryName = p.Category.CategoryName,
                     alias = p.Alias
                 })
                 .ToList();
 
+            // Lấy danh sách danh mục cho sidebar
+            var categories = db.Categories
+                .AsNoTracking()
+                .Select(c => new MenuVM
+                {
+                    categoryID = c.CategoryId,
+                    categoryName = c.CategoryName
+                })
+                .ToList();
+
+            ViewData["Categories"] = categories;
             ViewBag.CurrentPage = page;
             ViewBag.TotalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-            ViewBag.SelectedCategory = category;
+            ViewBag.SelectedCategory = categoryId;
 
             return View(pagedProducts);
         }
 
         public IActionResult Detail(int id)
         {
-            // Truy vấn chi tiết sản phẩm và bao gồm danh mục
             var data = db.Products
+                .AsNoTracking()
                 .Include(p => p.Category)
                 .SingleOrDefault(p => p.ProductId == id);
 
@@ -64,7 +81,6 @@ namespace TECHNOVA.Controllers
                 return Redirect("/404");
             }
 
-            // Tạo ProductDetailVM và điền dữ liệu
             var result = new ProductDetailVM
             {
                 productID = data.ProductId,
@@ -74,20 +90,29 @@ namespace TECHNOVA.Controllers
                 unitDescription = data.UnitDescription,
                 description = data.Description,
                 viewCount = data.ViewCount,
-                // Lấy các sản phẩm liên quan (cùng danh mục, trừ sản phẩm hiện tại)
                 RelatedProducts = db.Products
+                    .AsNoTracking()
                     .Where(p => p.CategoryId == data.CategoryId && p.ProductId != id)
-                    .Take(5) // Lấy tối đa 5 sản phẩm
+                    .Take(5)
                     .Select(p => new ItemVM
                     {
-                        productID = p.ProductId, // Thêm productID để tạo liên kết động
-                        productName = p.ProductName, // Sử dụng ProductName thay vì Name
+                        productID = p.ProductId,
+                        productName = p.ProductName,
                         image = p.Image ?? string.Empty,
-                        price = p.UnitPrice ?? 0, // Sử dụng UnitPrice thay vì Price
+                        price = p.UnitPrice ?? 0,
                         alias = p.Alias
                     })
                     .ToList()
             };
+
+            ViewData["Categories"] = db.Categories
+                .AsNoTracking()
+                .Select(c => new MenuVM
+                {
+                    categoryID = c.CategoryId,
+                    categoryName = c.CategoryName
+                })
+                .ToList();
 
             return View(result);
         }

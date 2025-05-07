@@ -26,7 +26,7 @@
             {
                 var iconClass = iconMap.ContainsKey(item.categoryName) ? iconMap[item.categoryName] : iconMap["Default"];
                 <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fa @iconClass"></i> @item.categoryName</a>
+                    <a class="nav-link" asp-controller="Item" asp-action="Index" asp-route-categoryId="@item.categoryID"><i class="fa @iconClass"></i> @item.categoryName</a>
                 </li>
             }
 
