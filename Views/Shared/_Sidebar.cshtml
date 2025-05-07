@@ -1,23 +1,22 @@
 ﻿@model IEnumerable<TECHNOVA.ViewModels.ItemVM>
 
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4 d-flex mb-4">
-            <div class="product-item w-100 d-flex flex-column">
+<div class="sidebar-widget widget-slider">
+    <div class="sidebar-slider normal-slider">
+        @foreach (var item in Model)
+        {
+            <div class="product-item">
                 <div class="product-title">
-                    <a asp-action="Detail" asp-controller="Item" asp-route-id="@item.productID">@item.productName</a>
+                    <a href="#">@item.productName</a>
                     <div class="ratting">
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
-                        <i class="fa fa-star"></i>
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <i class="fa fa-star"></i>
+                        }
                     </div>
                 </div>
                 <div class="product-image">
-                    <a asp-action="Detail" asp-controller="Item" asp-route-id ="@item.productID">
-                        <img src="@item.image" alt="@item.productName">
+                    <a href="product-detail.html">
+                        <img src="@item.image" alt="Product Image">
                     </a>
                     <div class="product-action">
                         <a href="#"><i class="fa fa-cart-plus"></i></a>
@@ -25,15 +24,27 @@
                         <a href="#"><i class="fa fa-search"></i></a>
                     </div>
                 </div>
-                <div class="product-price mt-auto">
+                <div class="product-price">
                     <h3><span>$</span>@item.price</h3>
                     <a class="btn" href=""><i class="fa fa-shopping-cart"></i>Buy Now</a>
                 </div>
             </div>
-        </div>
-    }
-</div>
+        }
+    </div>
 
+    <div class="sidebar-widget brands">
+        <h2 class="title">Our Suppliers</h2>
+        @await Component.InvokeAsync("SupplierList")
+    </div>
+
+    <div class="sidebar-widget tag">
+        <h2 class="title">Tags Cloud</h2>
+        @foreach (var item in Model)
+        {
+            <a href="#">@item.alias</a>
+        }
+    </div>
+</div>
 
 <style>
     .product-item {
@@ -64,9 +75,3 @@
     }
 
 </style>
-
-
-
-
-
-
