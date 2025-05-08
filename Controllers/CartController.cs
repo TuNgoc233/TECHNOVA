@@ -40,6 +40,7 @@ namespace TECHNOVA.Controllers
                     productName = product.ProductName,
                     price = product.UnitPrice ?? 0,
                     image = product.Image ?? string.Empty,
+                    
                     quantity = quantity
                 };
                 cart.Add(item);

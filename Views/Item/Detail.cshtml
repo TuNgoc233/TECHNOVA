@@ -242,14 +242,19 @@
     const btnMinus = document.querySelector('.btn-minus');
     const btnPlus = document.querySelector('.btn-plus');
 
+    // Đồng bộ giá trị quantity vào hidden input
     function syncQuantity() {
-        hidden1.value = hidden2.value = input.value;
+        let quantity = parseInt(input.value);
+        if (isNaN(quantity) || quantity < 1) {
+            quantity = 1;
+        }
+        input.value = quantity;
+        hidden1.value = hidden2.value = quantity;
     }
 
-    input.addEventListener('input', syncQuantity);
-
+    // Tăng giảm số lượng
     btnMinus.addEventListener('click', () => {
-        let val = parseInt(input.value);
+        let val = parseInt(input.value) || 1;
         if (val > 1) {
             input.value = val;
             syncQuantity();
@@ -257,10 +262,17 @@
     });
 
     btnPlus.addEventListener('click', () => {
-        let val = parseInt(input.value);
+        let val = parseInt(input.value) || 1;
         input.value = val;
         syncQuantity();
     });
+
+    // Khi người dùng nhập trực tiếp số
+    input.addEventListener('input', syncQuantity);
+
+    // Khi submit form
+    document.getElementById('cartForm').addEventListener('submit', syncQuantity);
+    document.getElementById('buyForm').addEventListener('submit', syncQuantity);
 </script>
 
 

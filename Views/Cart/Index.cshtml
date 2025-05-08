@@ -94,3 +94,36 @@
     </div>
 </div>
 <!-- Cart End -->
+<script>
+    document.querySelectorAll('.cart-page tbody tr').forEach(row => {
+        const btnMinus = row.querySelector('.btn-minus');
+        const btnPlus = row.querySelector('.btn-plus');
+        const input = row.querySelector('input[type="text"]');
+        const priceText = row.querySelector('td:nth-child(2)').innerText.replace('$', '').trim();
+        const totalCell = row.querySelector('td:nth-child(4)');
+        const price = parseFloat(priceText);
+
+        function updateTotal() {
+            let quantity = parseInt(input.value);
+            if (isNaN(quantity) || quantity < 1) quantity = 1;
+            const total = (price * quantity).toFixed(2);
+            totalCell.innerText = `$${total}`;
+        }
+
+        // Dùng setTimeout để đợi jQuery xử lý xong trước khi cập nhật tổng
+        btnMinus.addEventListener('click', () => {
+            setTimeout(updateTotal, 0);
+        });
+
+        btnPlus.addEventListener('click', () => {
+            setTimeout(updateTotal, 0);
+        });
+
+        input.addEventListener('input', updateTotal);
+
+        // Cập nhật tổng lúc đầu
+        updateTotal();
+    });
+</script>
+
+
