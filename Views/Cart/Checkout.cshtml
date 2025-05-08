@@ -1,0 +1,157 @@
+﻿@model IEnumerable<TECHNOVA.ViewModels.CartItem>
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<!-- Breadcrumb Start -->
+<div class="breadcrumb-wrap">
+    <div class="container-fluid">
+        <ul class="breadcrumb">
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Item" asp-action="Index">Products</a></li>
+            <li class="breadcrumb-item active">Checkout</li>
+        </ul>
+    </div>
+</div>
+<!-- Breadcrumb End -->
+<!-- Checkout Start -->
+<form id="checkoutForm" asp-controller="Cart" asp-action="Checkout" method="post">
+    <div class="checkout">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="checkout-inner">
+                        <div class="billing-address">
+                            <h2>Order Information</h2>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="IsChecked" name="IsChecked">
+                                        <label class="custom-control-label" for="IsChecked">Use customer information</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Fullname</label>
+                                    <input class="form-control" name="fullName" type="text" placeholder="Fullname">
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Phone Number</label>
+                                    <input class="form-control" name="phone" type="text" placeholder="Phone Number">
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Address</label>
+                                    <input class="form-control" name="address" type="text" placeholder="Address">
+                                </div>
+                                <div class="col-md-12">
+                                    <label>Note</label>
+                                    <textarea name="note" class="form-control" spellcheck="false" cols="30" rows="11" placeholder="Note"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="checkout-inner">
+                        <div class="checkout-summary">
+                            <h1>Cart Total</h1>
+                            <p class="sub-total">Sub Total<span>$@Model.Sum(p => p.total)</span></p>
+                            <p class="ship-cost">Shipping Cost<span>$1</span></p>
+                            <h2>Grand Total<span>$@(Model.Sum(p => p.total) + 1)</span></h2>
+                        </div>
+
+                        <div class="checkout-payment">
+                            <div class="payment-methods">
+                                <h1>Payment Methods</h1>
+                                <div class="payment-method">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" class="custom-control-input" id="payment-1" name="payment" value="Paypal">
+                                        <label class="custom-control-label" for="payment-1">Paypal</label>
+                                    </div>
+                                    <div class="payment-content" id="payment-1-show">
+                                        <p>PayPal is an online payment service that allows users to send and receive money securely over the Internet. To make a payment with PayPal, the user logs into their PayPal account, selects the recipient’s email address, enters the amount, and confirms the transaction. PayPal processes the payment without sharing the user’s financial information, making it a fast and secure way to pay for goods and services online</p>
+                                    </div>
+                                </div>
+                                <div class="payment-method">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" class="custom-control-input" id="payment-2" name="payment" value="VnPay">
+                                        <label class="custom-control-label" for="payment-2">VnPay</label>
+                                    </div>
+                                    <div class="payment-content" id="payment-2-show">
+                                        <p>"VNPAY is a Vietnamese electronic payment gateway that enables users to make secure and convenient online payments. When selecting VNPAY at checkout, users can scan a QR code using a mobile banking app or enter their bank card details through the VNPAY interface. The system supports multiple banks and ensures fast, encrypted transactions without the need to share sensitive banking information with the merchant.</p>
+                                    </div>
+                                </div>
+                                <div class="payment-method">
+                                    <div class="custom-control custom-radio">
+                                        <input type="radio" class="custom-control-input" id="payment-5" name="payment" value="Cash on Delivery">
+                                        <label class="custom-control-label" for="payment-5">Cash on Delivery</label>
+                                    </div>
+                                    <div class="payment-content" id="payment-5-show">
+                                        <p>Cash on Delivery (COD) is a payment method where customers pay for their order in cash or by card at the time of delivery. This method allows buyers to receive and inspect the goods before making a payment, offering convenience and trust for those who prefer not to pay online.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="checkout-btn">
+                                <button type="submit">Place Order</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+</form>
+<!-- Checkout End -->
+    <script>
+        $(document).ready(function () {
+            // Xử lý checkbox IsChecked
+            $("#IsChecked").change(function () {
+                const isChecked = $(this).prop("checked");
+                $("input[name='fullName']").prop("disabled", isChecked).val(isChecked ? "" : $("input[name='fullName']").val());
+                $("input[name='phone']").prop("disabled", isChecked).val(isChecked ? "" : $("input[name='phone']").val());
+                $("input[name='address']").prop("disabled", isChecked).val(isChecked ? "" : $("input[name='address']").val());
+            });
+
+            // Xử lý submit form
+            $("#checkoutForm").submit(function (e) {
+                e.preventDefault();
+                const paymentMethod = $("input[name='payment']:checked").val();
+                const isChecked = $("#IsChecked").prop("checked");
+
+                // Kiểm tra phương thức thanh toán
+                if (!paymentMethod) {
+                    alert("Please select a payment method.");
+                    return;
+                }
+
+                // Kiểm tra dữ liệu nếu không dùng thông tin khách hàng
+                if (!isChecked) {
+                    const fullName = $("input[name='fullName']").val().trim();
+                    const phone = $("input[name='phone']").val().trim();
+                    const address = $("input[name='address']").val().trim();
+                    if (!fullName || !phone || !address) {
+                        alert("Please provide full name, phone number, and address when not using customer information.");
+                        return;
+                    }
+                }
+
+                // Gửi yêu cầu AJAX
+                $.ajax({
+                    url: "/Cart/Checkout",
+                    type: "POST",
+                    data: $(this).serialize() + "&payment=" + encodeURIComponent(paymentMethod),
+                    success: function (response) {
+                        if (response.success) {
+                            window.location.href = "/Cart/Success";
+                        } else {
+                            alert("Error placing order: " + response.message);
+                            console.error("Error details:", response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        alert("Error sending request: " + error);
+                        console.error("AJAX error:", status, error);
+                    }
+                });
+            });
+        });
+    </script>

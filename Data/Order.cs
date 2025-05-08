@@ -33,6 +33,8 @@ public partial class Order
 
     public int? DiscountId { get; set; }
 
+    public string? Phone { get; set; }
+
     public virtual Customer Customer { get; set; } = null!;
 
     public virtual Discount? Discount { get; set; }

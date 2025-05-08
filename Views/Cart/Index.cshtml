@@ -7,8 +7,8 @@
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Item" asp-action="Index">Products</a></li>
             <li class="breadcrumb-item active">Cart</li>
         </ul>
     </div>
@@ -46,7 +46,7 @@
                                         <td>
                                             <div class="qty">
                                                 <button class="btn-minus"><i class="fa fa-minus"></i></button>
-                                                <input type="text" value="@item.quantity">
+                                                <input type="text" class="quantity-input" value="@item.quantity" data-product-id="@item.productId">
                                                 <button class="btn-plus"><i class="fa fa-plus"></i></button>
                                             </div>
                                         </td>
@@ -77,14 +77,15 @@
                             <div class="cart-summary">
                                 <div class="cart-content">
                                     <h1>Cart Summary</h1>
-                                    <p>Sub Total<span>$99</span></p>
+                                    <p>Sub Total<span>$@Model.Sum(p =>p.total)</span></p>
                                     <p>Shipping Cost<span>$1</span></p>
-                                    <h2>Grand Total<span>$100</span></h2>
+                                    <h2>Grand Total<span>$@(Model.Sum(p => p.total) + 1)</span></h2>
                                 </div>
-                                <div class="cart-btn">
-                                    <button>Update Cart</button>
-                                    <button>Checkout</button>
+                                <div class="cart-btn d-flex justify-content-between">
+                                    <a asp-controller="Item" asp-action="Index" class="btn btn-outline-secondary w-45">Update Cart</a>
+                                    <a asp-controller="Cart" asp-action="Checkout" class="btn btn-orange w-45">Checkout</a>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -93,8 +94,46 @@
         </div>
     </div>
 </div>
+
+<style>
+    .cart-btn {
+        gap: 10px;
+    }
+
+    .w-45 {
+        width: 48%; /* để có khoảng cách nhỏ giữa 2 nút */
+    }
+
+    .btn-orange {
+        background-color: coral;
+        color: white;
+        font-weight: bold;
+        border: none;
+        transition: background-color 0.2s ease;
+    }
+
+        .btn-orange:hover {
+            background-color: darkorange;
+        }
+
+</style>
 <!-- Cart End -->
 <script>
+    function recalculateSummary() {
+        let subtotal = 0;
+        document.querySelectorAll('.cart-page tbody tr').forEach(row => {
+            const price = parseFloat(row.querySelector('td:nth-child(2)').innerText.replace('$', '').trim());
+            const quantity = parseInt(row.querySelector('input[type="text"]').value) || 1;
+            subtotal += price * quantity;
+        });
+
+        const shippingCost = 1; // cố định theo bạn đã ghi
+        const grandTotal = subtotal + shippingCost;
+
+        document.querySelector('.cart-content p span').innerText = `$${subtotal.toFixed(2)}`;
+        document.querySelector('.cart-content h2 span').innerText = `$${grandTotal.toFixed(2)}`;
+    }
+
     document.querySelectorAll('.cart-page tbody tr').forEach(row => {
         const btnMinus = row.querySelector('.btn-minus');
         const btnPlus = row.querySelector('.btn-plus');
@@ -106,11 +145,12 @@
         function updateTotal() {
             let quantity = parseInt(input.value);
             if (isNaN(quantity) || quantity < 1) quantity = 1;
+            input.value = quantity;
             const total = (price * quantity).toFixed(2);
             totalCell.innerText = `$${total}`;
+            recalculateSummary();
         }
 
-        // Dùng setTimeout để đợi jQuery xử lý xong trước khi cập nhật tổng
         btnMinus.addEventListener('click', () => {
             setTimeout(updateTotal, 0);
         });
@@ -121,9 +161,44 @@
 
         input.addEventListener('input', updateTotal);
 
-        // Cập nhật tổng lúc đầu
         updateTotal();
     });
+
+    // Xử lý khi thay đổi số lượng
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('change', async function () {
+            const productId = parseInt(this.getAttribute('data-product-id'));
+            const quantity = parseInt(this.value);
+
+            if (isNaN(quantity) || quantity < 1) {
+                alert("Invalid quantity");
+                return;
+            }
+
+            try {
+                const response = await fetch('/Cart/UpdateQuantity', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ productId, quantity })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert("Quantity updated successfully");
+                    location.reload();
+                } else {
+                    alert("Error: " + data.message);
+                }
+            } catch (err) {
+                console.error("Fetch error", err);
+            }
+        });
+    });
+
 </script>
+
 
 

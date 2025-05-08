@@ -9,8 +9,8 @@
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Item" asp-action="Index">Products</a></li>
             <li class="breadcrumb-item active">Product Detail</li>
         </ul>
     </div>
@@ -55,21 +55,22 @@
                                         <button class="btn-plus" type="button"><i class="fa fa-plus"></i></button>
                                     </div>
                                 </div>
-                                <div class="action">
+                                <div class="action d-flex gap-4 flex-wrap">
                                     <form asp-action="AddToCart" asp-controller="Cart" asp-route-productId="@Model.productID" id="cartForm" method="post">
                                         <input type="hidden" name="quantity" id="quantityHidden1" value="1" />
-                                        <button type="submit" name="action" value="add" class="btn">
+                                        <button type="submit" name="action" value="add" class="btn btn-primary">
                                             <i class="fa fa-shopping-cart"></i> Add to Cart
                                         </button>
                                     </form>
 
                                     <form asp-action="BuyNow" asp-controller="Cart" asp-route-productId="@Model.productID" id="buyForm" method="post">
                                         <input type="hidden" name="quantity" id="quantityHidden2" value="1" />
-                                        <button type="submit" name="action" value="buy" class="btn">
+                                        <button type="submit" name="action" value="buy" class="btn btn-warning">
                                             <i class="fa fa-shopping-bag"></i> Buy Now
                                         </button>
                                     </form>
                                 </div>
+
                             </div>
                         </div>
                     </div>
@@ -194,19 +195,23 @@
                 </div>
             </div>
 
-    <div class="col-lg-4 sidebar">
-        @await Component.InvokeAsync("Menu")
+            <div class="col-lg-4 sidebar">
+                @await Component.InvokeAsync("Menu")
 
 
-        @await Html.PartialAsync("_Sidebar", Model.RelatedProducts)
-    </div>
-    <!-- Side Bar End -->
-</div>
+                @await Html.PartialAsync("_Sidebar", Model.RelatedProducts)
+            </div>
+            <!-- Side Bar End -->
+        </div>
     </div>
 </div>
 
 <!-- Product Detail End -->
 <style>
+    .action form {
+        margin: 0;
+    }
+
     .product-item {
         display: flex;
         flex-direction: column;

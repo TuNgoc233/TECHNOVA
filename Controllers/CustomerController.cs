@@ -64,7 +64,7 @@ namespace TECHNOVA.Controllers
                     ModelState.AddModelError("", "Register Fail: " + ex.Message);
                 }
             }
-                return View();
+            return View();
         }
         #endregion
 
@@ -73,7 +73,7 @@ namespace TECHNOVA.Controllers
         public IActionResult Login(string? ReturnUrl)
         {
             ViewBag.ReturnUrl = ReturnUrl;
-            return View();  
+            return View();
         }
 
         [HttpPost]
@@ -102,6 +102,7 @@ namespace TECHNOVA.Controllers
                 var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, customer.CustomerId),
+                                            new Claim(MySetting.CLAIM_CUSTOMERID, customer.CustomerId),
             new Claim(ClaimTypes.Email, customer.Email ?? ""),
             new Claim(ClaimTypes.Name, customer.FullName ?? ""),
             new Claim(ClaimTypes.Role, "Customer")

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using TECHNOVA.Data;
 using Microsoft.AspNetCore.Authentication.Google;
+using TECHNOVA.Models;
+using TECHNOVA.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,6 +26,10 @@ builder.Services.AddSession(options =>
 );
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+// Configure EmailSettings
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddAuthentication(options =>
 {

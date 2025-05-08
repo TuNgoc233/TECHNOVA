@@ -7,8 +7,8 @@
 <div class="breadcrumb-wrap">
     <div class="container-fluid">
         <ul class="breadcrumb">
-            <li class="breadcrumb-item"><a href="#">Home</a></li>
-            <li class="breadcrumb-item"><a href="#">Products</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+            <li class="breadcrumb-item"><a asp-controller="Item" asp-action="Index">Products</a></li>
             <li class="breadcrumb-item active">Login</li>
         </ul>
     </div>
@@ -51,10 +51,10 @@
 
                             <div class="col-md-12 text-center mt-4">
                                 <p>Or sign in with:</p>
-                                <a asp-asp-controller="Customer" asp-action="LoginGoogle" class="btn btn-outline-danger me-2">
+                                <a asp-controller="Customer" asp-action="LoginGoogle" class="btn btn-outline-danger me-2">
                                     <i class="fab fa-google me-1"></i> Google
                                 </a>
-                                <a a asp-asp-controller="Customer" asp-action="LoginFacebook" class="btn btn-outline-primary">
+                                <a asp-controller="Customer" asp-action="LoginFacebook" class="btn btn-outline-primary">
                                     <i class="fab fa-facebook-f me-1"></i> Facebook
                                 </a>
                             </div>
