@@ -25,6 +25,8 @@ builder.Services.AddSession(options =>
 }
 );
 
+builder.Services.AddSingleton<IVnPayService, VnPayService>();
+
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // Configure EmailSettings

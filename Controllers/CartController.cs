@@ -13,11 +13,13 @@ namespace TECHNOVA.Controllers
     {
         private readonly TechnovaContext db;
         private readonly IEmailService _emailService;
+        private readonly IVnPayService _vnPayService;
 
-        public CartController(TechnovaContext context, IEmailService emailService)
+        public CartController(TechnovaContext context, IEmailService emailService, IVnPayService vnPayService)
         {
             db = context;
             _emailService = emailService;
+            _vnPayService = vnPayService;
         }
 
         public List<CartItem> Cart => HttpContext.Session.Get<List<CartItem>>(MySetting.CART_KEY) ?? new List<CartItem>();
@@ -119,6 +121,19 @@ namespace TECHNOVA.Controllers
                 var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage);
                 return Json(new { success = false, message = "Invalid form data: " + string.Join("; ", errors) });
             }
+
+            if(payment== "VnPay")
+            {
+                var vnPayModel = new VnPaymentRequestModel
+                {
+                    amount = Cart.Sum(p => p.total),
+                    CreatedDate = DateTime.Now,
+                    description = $"{model.fullName}{model.phone}",
+                    fullName = model.fullName,
+                    OrderId = new Random().Next(10,100)
+                };
+                return Redirect(_vnPayService.CreatePaymentUrl(HttpContext, vnPayModel));
+            }    
 
             // Kiểm tra CustomerId
             var customerId = HttpContext.User.Claims.FirstOrDefault(p => p.Type == MySetting.CLAIM_CUSTOMERID)?.Value;
@@ -238,6 +253,32 @@ namespace TECHNOVA.Controllers
         public IActionResult Success()
         {
             return View();
+        }
+        [Authorize]
+        public IActionResult PaymentFail()
+        {
+            return View();
+        }
+        [Authorize]
+        public IActionResult PaymentSuccess()
+        {
+            return View("Success");
+        }
+
+        [Authorize]
+        public IActionResult PaymentCallBack()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+            if (response == null || response.VnPayResponseCode != "00")
+            {
+                TempData["Message"] = $"Lỗi thanh toán VnPay: {response.VnPayResponseCode}";
+                return RedirectToAction("PaymentFail");
+            }
+
+            // Lưu đơn hàng vô database
+
+            TempData["Message"] = $"Thanh toán VnPay thành công: {response.VnPayResponseCode}";
+            return RedirectToAction("PaymentSuccess");
         }
     }
 }
